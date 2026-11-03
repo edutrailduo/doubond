@@ -43,7 +43,7 @@ footer{font-size:11px;color:var(--muted);text-align:center;padding:10px}
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { getOrCreateDeviceKey, deriveChatKey, encryptText, decryptText, conversationFingerprint } from './crypto.js';
-const supabase=createClient('https://lunkifqokwvecmtohzxs.supabase.co','sb_publishable_HHoiVrTv5JmQDGgNJmBmtA_ITexssLE');
+const supabase=createClient('https://lunkifqokwvecmtohzxs.supabase.co','sb_publishable_HHoiVrTv5JmQDGgNJmBmtA_ITexssLE',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storage:window.localStorage,storageKey:'duobond-auth-session'}});
 const $=id=>document.getElementById(id);let currentUser=null,channel=null,receiptChannel=null,device=null,chatKey=null,peer=null,ready=false,seen=new Set(),receiptMap=new Map(),myNickname='',peerNickname='';
 const trustedKey='duobond-peer-fingerprint-v1';
 function status(t){$('topStatus').textContent=t}
@@ -145,7 +145,7 @@ $('sendForm').addEventListener('submit',async e=>{
  catch(err){status('Message not sent');$('securityError').textContent=err.message;}
  finally{btn.disabled=false;}
 });
-supabase.auth.onAuthStateChange((_event,session)=>{if(session?.user&&session.user.id!==currentUser?.id)showChat(session.user);else if(!session){currentUser=null;ready=false;chatKey=null;if(channel)supabase.removeChannel(channel);if(receiptChannel)supabase.removeChannel(receiptChannel);showAuth();}});
+supabase.auth.onAuthStateChange((_event,session)=>{if(session?.user&&session.user.id!==currentUser?.id)showChat(session.user);else if(event==='SIGNED_OUT'){currentUser=null;ready=false;chatKey=null;if(channel)supabase.removeChannel(channel);if(receiptChannel)supabase.removeChannel(receiptChannel);showAuth();}});
 const {data:{session}}=await supabase.auth.getSession();if(session?.user)showChat(session.user);else showAuth();
 if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(console.error));
 </script></body></html>
