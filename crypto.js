@@ -76,3 +76,9 @@ export async function decryptText(key, body) {
   const plaintext = await crypto.subtle.decrypt({name:'AES-GCM',iv:unb64(packet.iv)},key,unb64(packet.ct));
   return dec.decode(plaintext);
 }
+
+export async function conversationFingerprint(localFingerprint, peerFingerprint) {
+  const pair = [localFingerprint, peerFingerprint].sort().join('|');
+  const digest = await crypto.subtle.digest('SHA-256', enc.encode('DuoBond safety number v1|' + pair));
+  return [...new Uint8Array(digest)].map(x => x.toString(16).padStart(2,'0')).join('').match(/.{1,4}/g).join(' ').toUpperCase();
+}
