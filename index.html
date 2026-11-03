@@ -22,13 +22,13 @@ label{display:block;color:var(--muted);font-size:13px;margin:14px 0 7px}input{wi
 .verify{display:flex;gap:9px;align-items:flex-start;margin-top:12px}.verify input{width:auto;margin-top:3px}.verify label{margin:0;color:var(--text)}
 #messages{flex:1;overflow:auto;padding:18px 2px 14px;display:flex;flex-direction:column;gap:10px;min-height:220px}
 .msg{max-width:84%;padding:12px 14px;border-radius:17px;background:var(--theirs);align-self:flex-start;overflow-wrap:anywhere;white-space:pre-wrap;border:1px solid #493443}
-.msg.mine{align-self:flex-end;background:var(--mine)}.time{font-size:10px;color:#c7b5c0;margin-top:6px;text-align:right}
+.msg.mine{align-self:flex-end;background:var(--mine)}.msgActions{display:flex;justify-content:flex-end;gap:8px;margin-top:7px}.loveBtn{padding:4px 9px;background:#34232f;color:#f3c4d2;border:1px solid #624052;font-size:13px}.loveCount{font-size:11px;color:#f3c4d2;align-self:center}.time{font-size:10px;color:#c7b5c0;margin-top:6px;text-align:right}
 .meta{font-size:10px;color:var(--gold);text-align:right;margin-top:3px}.composer{display:flex;gap:8px;padding:12px 0 calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}.composer input{min-width:0;flex:1}.composer button{padding-inline:18px}
 .empty{color:var(--muted);text-align:center;margin:auto;font-size:14px;padding:30px 10px}.hidden{display:none!important}
 footer{font-size:11px;color:var(--muted);text-align:center;padding:10px}
 </style></head>
 <body><div class="shell">
-<header><div><div class="brand">DuoBond</div><div class="sub">Just us, in our own little world</div></div><div id="topStatus" class="status">Not connected</div></header>
+<header><div><div class="brand">DuoBond</div><div class="sub" id="partnerLabel">Just us, in our own little world</div></div><div style="text-align:right"><div id="topStatus" class="status">Not connected</div><button id="nicknameBtn" type="button" style="margin-top:7px;padding:7px 10px;font-size:11px">Set nickname</button></div></header>
 <section id="auth" class="card"><h1>Welcome back</h1><p class="hint">A private space for two. Sign in to continue.</p>
 <form id="loginForm"><label for="email">Email</label><input id="email" type="email" autocomplete="username" required placeholder="you@example.com">
 <label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required placeholder="Your password">
@@ -43,7 +43,7 @@ footer{font-size:11px;color:var(--muted);text-align:center;padding:10px}
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { getOrCreateDeviceKey, deriveChatKey, encryptText, decryptText, conversationFingerprint } from './crypto.js';
 const supabase=createClient('https://lunkifqokwvecmtohzxs.supabase.co','sb_publishable_HHoiVrTv5JmQDGgNJmBmtA_ITexssLE');
-const $=id=>document.getElementById(id);let currentUser=null,channel=null,receiptChannel=null,device=null,chatKey=null,peer=null,ready=false,seen=new Set(),receiptMap=new Map();
+const $=id=>document.getElementById(id);let currentUser=null,channel=null,receiptChannel=null,device=null,chatKey=null,peer=null,ready=false,seen=new Set(),receiptMap=new Map(),myNickname='',peerNickname='';
 const trustedKey='duobond-peer-fingerprint-v1';
 function status(t){$('topStatus').textContent=t}
 function showAuth(msg=''){$('auth').classList.remove('hidden');$('chat').style.display='none';$('authError').textContent=msg;status('Not connected')}
@@ -70,7 +70,7 @@ async function setupEncryption(){
 }
 async function unlockChat(){
  ready=true;$('security').style.display='none';$('sendBtn').disabled=false;status('Encrypted connection ready');
- await loadMessages();subscribeMessages();subscribeReceipts();
+ await loadMessages();subscribeMessages();subscribeReceipts();subscribeReactions();
 }
 $('trustBtn').addEventListener('click',async()=>{
  if(!$('verifyCheck').checked){$('securityError').textContent='Please compare the fingerprint with your partner first.';return;}
@@ -92,6 +92,19 @@ async function displayMessage(m){
  $('messages').append(node);$('messages').scrollTop=$('messages').scrollHeight;
  if(m.sender_id!==currentUser.id)await markReceived(m.id,true);
 }
+async function loadLove(id,button,count){
+ const {data,error}=await supabase.from('message_reactions').select('user_id').eq('message_id',id);
+ if(error)return;count.textContent=data?.length?String(data.length):'';
+ button.textContent=data?.some(x=>x.user_id===currentUser.id)?'♥ Loved':'♡ Love';
+}
+async function toggleLove(id,button){
+ const {data}=await supabase.from('message_reactions').select('user_id').eq('message_id',id).eq('user_id',currentUser.id).maybeSingle();
+ let result;
+ if(data)result=await supabase.from('message_reactions').delete().eq('message_id',id).eq('user_id',currentUser.id);
+ else result=await supabase.from('message_reactions').insert({message_id:id,user_id:currentUser.id,reaction:'❤️'});
+ if(result.error){$('securityError').textContent=result.error.message;return;}
+ const count=button.parentElement.querySelector('.loveCount');await loadLove(id,button,count);
+}
 async function loadMessages(){
  const {data,error}=await supabase.from('messages').select('id,sender_id,body,created_at').order('created_at',{ascending:true}).limit(200);
  if(error)throw error;
@@ -109,12 +122,17 @@ function subscribeMessages(){
  if(channel)supabase.removeChannel(channel);
  channel=supabase.channel('duobond-encrypted-messages').on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},async p=>{if(ready)await displayMessage(p.new)}).subscribe();
 }
-function subscribeReceipts(){
+function subscribeReactions(){supabase.channel('duobond-love-reactions').on('postgres_changes',{event:'*',schema:'public',table:'message_reactions'},async p=>{const id=p.new?.message_id||p.old?.message_id;const b=$('messages').querySelector('[data-reaction-count="'+id+'"]')?.parentElement?.querySelector('.loveBtn');const c=$('messages').querySelector('[data-reaction-count="'+id+'"]');if(id&&b&&c)await loadLove(id,b,c);}).subscribe();}\nfunction subscribeReceipts(){
  if(receiptChannel)supabase.removeChannel(receiptChannel);
  receiptChannel=supabase.channel('duobond-receipts').on('postgres_changes',{event:'*',schema:'public',table:'message_receipts'},p=>{
   const r=p.new;if(r?.recipient_id!==currentUser.id&&r?.message_id){const s=r.seen_at?'Seen':r.delivered_at?'Delivered':'Sent';receiptMap.set(r.message_id,s);const n=$('messages').querySelector('[data-message-id="'+r.message_id+'"] .meta');if(n)n.textContent=s;}
  }).subscribe();
 }
+$('nicknameBtn').addEventListener('click',async()=>{
+ if(!currentUser)return;const next=prompt('Your nickname (1–30 characters):',myNickname);if(!next?.trim())return;
+ const nickname=next.trim().slice(0,30);const {error}=await supabase.from('duo_profiles').upsert({user_id:currentUser.id,nickname},{onConflict:'user_id'});
+ if(error){$('securityError').textContent=error.message;return;}myNickname=nickname;
+});
 $('loginForm').addEventListener('submit',async e=>{e.preventDefault();$('loginBtn').disabled=true;$('authError').textContent='Signing in…';const {data,error}=await supabase.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});$('loginBtn').disabled=false;if(error){$('authError').textContent=error.message;return;}showChat(data.user);});
 $('sendForm').addEventListener('submit',async e=>{
  e.preventDefault();const plain=$('messageInput').value.trim();if(!plain||!currentUser||!ready||!chatKey)return;
