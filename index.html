@@ -39,7 +39,7 @@ footer{font-size:11px;color:var(--muted);text-align:center;padding:10px}
 <button id="trustBtn" class="wide" type="button">Confirm fingerprint</button><div id="securityError" class="error"></div></div>
 <div id="messages"><div class="empty">Your conversation starts here.</div></div>
 <form id="sendForm" class="composer"><input id="messageInput" maxlength="5000" autocomplete="off" placeholder="Write something from the heart…" aria-label="Message"><button id="sendBtn" type="submit" disabled>Send</button></form></section>
-<footer>Device-only encryption · No cloud key backup</footer></div>
+<footer>Encryption temporarily off · Messages are stored as plain text</footer></div>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 import { getOrCreateDeviceKey, deriveChatKey, encryptText, decryptText, conversationFingerprint } from './crypto.js';
@@ -54,23 +54,19 @@ async function openConversation(){if(!ready){status('Connecting securely…');re
 async function refreshBlockState(){const {data:members}=await supabase.from('duo_members').select('user_id');const partner=members?.find(x=>x.user_id!==currentUser.id);if(!partner)return;const {data}=await supabase.from('duo_blocks').select('blocker_id,blocked_id').or('and(blocker_id.eq.'+currentUser.id+',blocked_id.eq.'+partner.user_id+'),and(blocker_id.eq.'+partner.user_id+',blocked_id.eq.'+currentUser.id+')');const blocked=!!data?.length;$('blockBtn').textContent=blocked?'Unblock':'Block';$('sendBtn').disabled=!ready||blocked;}
 function securityFail(msg){ready=false;chatKey=null;$('sendBtn').disabled=true;$('security').style.display='block';$('securityError').textContent=msg;status('Security setup needed')}
 async function setupEncryption(){
- ready=false;$('sendBtn').disabled=true;$('security').style.display='block';$('securityText').textContent='Creating or loading this device’s private key…';
- device=await getOrCreateDeviceKey();
- const {error:upErr}=await supabase.from('duo_device_keys').upsert({user_id:currentUser.id,public_key:JSON.stringify(device.publicJwk),fingerprint:device.fingerprint,updated_at:new Date().toISOString()},{onConflict:'user_id'});
- if(upErr)throw new Error('Could not register this device key: '+upErr.message);
- const {data:allKeys,error:kErr}=await supabase.from('duo_device_keys').select('user_id,public_key,fingerprint');
- if(kErr)throw new Error('Could not load partner device key: '+kErr.message);
- const keys=allKeys?.find(x=>x.user_id!==currentUser.id);
- if(!keys){$('securityText').textContent='Your key is ready. Your partner must sign in on their device once to create their key.';status('Waiting for partner key');return;}
- peer={...keys,publicJwk:JSON.parse(keys.public_key)};
- chatKey=await deriveChatKey(device.pair.privateKey,peer.publicJwk);
- const safetyNumber=await conversationFingerprint(device.fingerprint,peer.fingerprint);
- $('peerFingerprint').textContent=safetyNumber;
- $('securityText').textContent='Both devices should show the exact same safety number. Compare it in person or by a separate trusted call before confirming.';
- const trusted=localStorage.getItem(trustedKey);
- if(trusted===safetyNumber){await unlockChat();return;}
- $('verifyCheck').checked=false;$('trustBtn').disabled=false;$('securityError').textContent='';
- status('Verify partner key');
+ // Encryption is temporarily paused. Keep an optional key only to read older encrypted messages.
+ ready=false;$('sendBtn').disabled=true;$('security').style.display='none';
+ try{
+  device=await getOrCreateDeviceKey();
+  const {error:upErr}=await supabase.from('duo_device_keys').upsert({user_id:currentUser.id,public_key:JSON.stringify(device.publicJwk),fingerprint:device.fingerprint,updated_at:new Date().toISOString()},{onConflict:'user_id'});
+  if(!upErr){
+   const {data:allKeys}=await supabase.from('duo_device_keys').select('user_id,public_key,fingerprint');
+   const keys=allKeys?.find(x=>x.user_id!==currentUser.id);
+   if(keys){peer={...keys,publicJwk:JSON.parse(keys.public_key)};chatKey=await deriveChatKey(device.pair.privateKey,peer.publicJwk);}
+  }
+ }catch(e){console.warn('Legacy encrypted-message key unavailable:',e);}
+ chatKey=chatKey||null;
+ await unlockChat();
 }
 async function unlockChat(){
  ready=true;$('security').style.display='none';$('sendBtn').disabled=false;status('Encrypted connection ready');
@@ -144,7 +140,7 @@ $('loginForm').addEventListener('submit',async e=>{e.preventDefault();$('loginBt
 $('sendForm').addEventListener('submit',async e=>{
  e.preventDefault();const plain=$('messageInput').value.trim();if(!plain||!currentUser||!ready||!chatKey)return;
  const btn=$('sendBtn');btn.disabled=true;
- try{const body=await encryptText(chatKey,plain);const {error}=await supabase.from('messages').insert({sender_id:currentUser.id,body});if(error)throw error;$('messageInput').value='';status('Encrypted · Sent');}
+ try{const body=plain;const {error}=await supabase.from('messages').insert({sender_id:currentUser.id,body});if(error)throw error;$('messageInput').value='';status('Sent');}
  catch(err){status('Message not sent');$('securityError').textContent=err.message;}
  finally{btn.disabled=false;}
 });
