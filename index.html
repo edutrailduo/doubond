@@ -54,12 +54,9 @@ async function setupEncryption(){
  device=await getOrCreateDeviceKey();
  const {error:upErr}=await supabase.from('duo_device_keys').upsert({user_id:currentUser.id,public_key:JSON.stringify(device.publicJwk),fingerprint:device.fingerprint,updated_at:new Date().toISOString()},{onConflict:'user_id'});
  if(upErr)throw new Error('Could not register this device key: '+upErr.message);
- const {data:members,error:mErr}=await supabase.from('duo_members').select('user_id');
- if(mErr)throw new Error('Could not verify DuoBond members: '+mErr.message);
- const other=members?.find(x=>x.user_id!==currentUser.id);
- if(!other)throw new Error('The other DuoBond account is not registered yet.');
- const {data:keys,error:kErr}=await supabase.from('duo_device_keys').select('user_id,public_key,fingerprint').eq('user_id',other.user_id).maybeSingle();
+ const {data:allKeys,error:kErr}=await supabase.from('duo_device_keys').select('user_id,public_key,fingerprint');
  if(kErr)throw new Error('Could not load partner device key: '+kErr.message);
+ const keys=allKeys?.find(x=>x.user_id!==currentUser.id);
  if(!keys){$('securityText').textContent='Your key is ready. Your partner must sign in on their device once to create their key.';status('Waiting for partner key');return;}
  peer={...keys,publicJwk:JSON.parse(keys.public_key)};
  chatKey=await deriveChatKey(device.pair.privateKey,peer.publicJwk);
