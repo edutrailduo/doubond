@@ -69,7 +69,7 @@ async function setupEncryption(){
  await unlockChat();
 }
 async function unlockChat(){
- ready=true;$('security').style.display='none';$('sendBtn').disabled=false;status('Encrypted connection ready');
+ ready=true;$('security').style.display='none';$('sendBtn').disabled=false;status('Connected · Encryption off');
  await loadMessages();subscribeMessages();subscribeReceipts();subscribeReactions();
 }
 $('trustBtn').addEventListener('click',async()=>{
@@ -122,7 +122,8 @@ function subscribeMessages(){
  if(channel)supabase.removeChannel(channel);
  channel=supabase.channel('duobond-encrypted-messages').on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},async p=>{if(ready)await displayMessage(p.new)}).subscribe();
 }
-function subscribeReactions(){supabase.channel('duobond-love-reactions').on('postgres_changes',{event:'*',schema:'public',table:'message_reactions'},async p=>{const id=p.new?.message_id||p.old?.message_id;const b=$('messages').querySelector('[data-reaction-count="'+id+'"]')?.parentElement?.querySelector('.loveBtn');const c=$('messages').querySelector('[data-reaction-count="'+id+'"]');if(id&&b&&c)await loadLove(id,b,c);}).subscribe();}\nfunction subscribeReceipts(){
+function subscribeReactions(){supabase.channel('duobond-love-reactions').on('postgres_changes',{event:'*',schema:'public',table:'message_reactions'},async p=>{const id=p.new?.message_id||p.old?.message_id;const b=$('messages').querySelector('[data-reaction-count="'+id+'"]')?.parentElement?.querySelector('.loveBtn');const c=$('messages').querySelector('[data-reaction-count="'+id+'"]');if(id&&b&&c)await loadLove(id,b,c);}).subscribe();}
+function subscribeReceipts(){
  if(receiptChannel)supabase.removeChannel(receiptChannel);
  receiptChannel=supabase.channel('duobond-receipts').on('postgres_changes',{event:'*',schema:'public',table:'message_receipts'},p=>{
   const r=p.new;if(r?.recipient_id!==currentUser.id&&r?.message_id){const s=r.seen_at?'Seen':r.delivered_at?'Delivered':'Sent';receiptMap.set(r.message_id,s);const n=$('messages').querySelector('[data-message-id="'+r.message_id+'"] .meta');if(n)n.textContent=s;}
@@ -138,7 +139,7 @@ $('logoutBtn').addEventListener('click',async()=>{if(!confirm('Log out of DuoBon
 $('blockBtn').addEventListener('click',async()=>{const {data:members}=await supabase.from('duo_members').select('user_id');const partner=members?.find(x=>x.user_id!==currentUser.id);if(!partner)return;const {data}=await supabase.from('duo_blocks').select('blocker_id').eq('blocker_id',currentUser.id).eq('blocked_id',partner.user_id).maybeSingle();if(data){const {error}=await supabase.from('duo_blocks').delete().eq('blocker_id',currentUser.id).eq('blocked_id',partner.user_id);if(error){alert(error.message);return;}$('blockBtn').textContent='Block';$('sendBtn').disabled=!ready;alert('Partner unblocked.');await refreshBlockState();}else{const {error}=await supabase.from('duo_blocks').insert({blocker_id:currentUser.id,blocked_id:partner.user_id});if(error){alert(error.message);return;}$('blockBtn').textContent='Unblock';$('sendBtn').disabled=true;alert('Partner blocked. New messages are disabled.');}});
 $('loginForm').addEventListener('submit',async e=>{e.preventDefault();$('loginBtn').disabled=true;$('authError').textContent='Signing in…';const {data,error}=await supabase.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});$('loginBtn').disabled=false;if(error){$('authError').textContent=error.message;return;}showChat(data.user);});
 $('sendForm').addEventListener('submit',async e=>{
- e.preventDefault();const plain=$('messageInput').value.trim();if(!plain||!currentUser||!ready||!chatKey)return;
+ e.preventDefault();const plain=$('messageInput').value.trim();if(!plain||!currentUser||!ready)return;
  const btn=$('sendBtn');btn.disabled=true;
  try{const body=plain;const {error}=await supabase.from('messages').insert({sender_id:currentUser.id,body});if(error)throw error;$('messageInput').value='';status('Sent');}
  catch(err){status('Message not sent');$('securityError').textContent=err.message;}
