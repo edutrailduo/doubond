@@ -1,113 +1,131 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#101114">
-  <meta name="description" content="A private space for two.">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="manifest" href="./manifest.webmanifest">
-  <link rel="icon" href="./icon.svg" type="image/svg+xml">
-  <title>DuoBond</title>
-  <style>
-    :root{color-scheme:dark;--bg:#101114;--panel:#191b20;--panel2:#22252c;--line:#30333b;--text:#f5f5f6;--muted:#9b9da7;--accent:#d9c6a1;--mine:#344638;--theirs:#252832}
-    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:16px system-ui,-apple-system,sans-serif;min-height:100dvh}
-    button,input{font:inherit}button{cursor:pointer;border:0;border-radius:14px;padding:13px 17px;background:var(--accent);color:#171717;font-weight:650}
-    .shell{max-width:760px;margin:auto;min-height:100dvh;display:flex;flex-direction:column;padding:env(safe-area-inset-top) 14px env(safe-area-inset-bottom)}
-    header{display:flex;align-items:center;justify-content:space-between;padding:20px 4px 16px;border-bottom:1px solid var(--line)}
-    .brand{font-size:22px;font-weight:750;letter-spacing:.3px}.sub{font-size:12px;color:var(--muted);margin-top:2px}
-    .status{font-size:12px;color:var(--muted)}.card{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:22px;width:100%;max-width:430px;margin:auto}
-    h1{font-size:24px;margin:0 0 8px}.hint{color:var(--muted);font-size:14px;line-height:1.5;margin:0 0 20px}
-    label{display:block;color:var(--muted);font-size:13px;margin:14px 0 7px}input{width:100%;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:12px;padding:14px;outline:none}input:focus{border-color:var(--accent)}
-    .wide{width:100%;margin-top:18px}.error{color:#ff9c9c;font-size:13px;min-height:18px;margin-top:12px}.chat{display:none;flex:1;min-height:0;flex-direction:column}
-    #messages{flex:1;overflow:auto;padding:18px 2px 14px;display:flex;flex-direction:column;gap:10px}
-    .msg{max-width:82%;padding:11px 14px;border-radius:17px;background:var(--theirs);align-self:flex-start;overflow-wrap:anywhere;white-space:pre-wrap}
-    .msg.mine{align-self:flex-end;background:var(--mine)}.time{font-size:10px;color:#b7b9c1;margin-top:5px;text-align:right}
-    .composer{display:flex;gap:8px;padding:12px 0 calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}.composer input{min-width:0;flex:1}.composer button{padding-inline:18px}
-    .empty{color:var(--muted);text-align:center;margin:auto;font-size:14px;padding:30px 10px}.hidden{display:none!important}
-    footer{font-size:11px;color:var(--muted);text-align:center;padding:10px}
-  </style>
-</head>
-<body>
-<div class="shell">
-  <header><div><div class="brand">DuoBond</div><div class="sub">A private space for two</div></div><div id="topStatus" class="status">Not connected</div></header>
-  <section id="auth" class="card">
-    <h1>Welcome back</h1><p class="hint">Sign in with the account invited to your private DuoBond space.</p>
-    <form id="loginForm">
-      <label for="email">Email</label><input id="email" type="email" autocomplete="username" required placeholder="you@example.com">
-      <label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required placeholder="Your password">
-      <button class="wide" id="loginBtn" type="submit">Sign in</button>
-    </form>
-    <div id="authError" class="error" role="alert"></div>
-  </section>
-  <section id="chat" class="chat">
-    <div id="messages"><div class="empty">Your private conversation starts here.</div></div>
-    <form id="sendForm" class="composer"><input id="messageInput" maxlength="5000" autocomplete="off" placeholder="Write a message..." aria-label="Message"><button type="submit">Send</button></form>
-  </section>
-  <footer>Private two-member chat · Keep your password private</footer>
-</div>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#100d12"><meta name="description" content="A private space for two.">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./icon.svg" type="image/svg+xml">
+<title>DuoBond</title>
+<style>
+:root{color-scheme:dark;--bg:#100d12;--panel:#1b151c;--panel2:#261d27;--line:#493443;--text:#f8f1f4;--muted:#b9a7b2;--gold:#d8bd91;--rose:#b8798e;--mine:#422d3a;--theirs:#29232d}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#291a27 0,#100d12 58%);color:var(--text);font:16px system-ui,-apple-system,sans-serif;min-height:100dvh}
+button,input{font:inherit}button{cursor:pointer;border:0;border-radius:14px;padding:13px 17px;background:linear-gradient(135deg,var(--gold),#b98d72);color:#1a1216;font-weight:700}
+button:disabled{opacity:.5;cursor:not-allowed}.shell{max-width:760px;margin:auto;min-height:100dvh;display:flex;flex-direction:column;padding:env(safe-area-inset-top) 14px env(safe-area-inset-bottom)}
+header{display:flex;align-items:center;justify-content:space-between;padding:22px 4px 17px;border-bottom:1px solid var(--line)}
+.brand{font-family:Georgia,serif;font-size:27px;letter-spacing:1.1px;color:var(--gold)}.sub{font-size:12px;color:var(--muted);margin-top:3px}.status{font-size:12px;color:var(--gold);text-align:right}
+.card{background:rgba(27,21,28,.94);border:1px solid var(--line);border-radius:22px;padding:22px;width:100%;max-width:460px;margin:auto;box-shadow:0 18px 55px #0005}
+h1{font-family:Georgia,serif;font-size:26px;font-weight:500;margin:0 0 8px}.hint{color:var(--muted);font-size:14px;line-height:1.55;margin:0 0 18px}
+label{display:block;color:var(--muted);font-size:13px;margin:14px 0 7px}input{width:100%;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:12px;padding:14px;outline:none}input:focus{border-color:var(--gold)}
+.wide{width:100%;margin-top:18px}.error{color:#ffaaa9;font-size:13px;min-height:18px;margin-top:12px}.chat{display:none;flex:1;min-height:0;flex-direction:column}
+#security{display:none;background:#211820;border:1px solid var(--line);border-radius:17px;padding:15px;margin:14px 0;color:var(--muted);font-size:13px;line-height:1.55}
+.fingerprint{font-family:ui-monospace,monospace;color:var(--gold);font-size:12px;overflow-wrap:anywhere;margin:8px 0}
+.verify{display:flex;gap:9px;align-items:flex-start;margin-top:12px}.verify input{width:auto;margin-top:3px}.verify label{margin:0;color:var(--text)}
+#messages{flex:1;overflow:auto;padding:18px 2px 14px;display:flex;flex-direction:column;gap:10px;min-height:220px}
+.msg{max-width:84%;padding:12px 14px;border-radius:17px;background:var(--theirs);align-self:flex-start;overflow-wrap:anywhere;white-space:pre-wrap;border:1px solid #493443}
+.msg.mine{align-self:flex-end;background:var(--mine)}.time{font-size:10px;color:#c7b5c0;margin-top:6px;text-align:right}
+.meta{font-size:10px;color:var(--gold);text-align:right;margin-top:3px}.composer{display:flex;gap:8px;padding:12px 0 calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}.composer input{min-width:0;flex:1}.composer button{padding-inline:18px}
+.empty{color:var(--muted);text-align:center;margin:auto;font-size:14px;padding:30px 10px}.hidden{display:none!important}
+footer{font-size:11px;color:var(--muted);text-align:center;padding:10px}
+</style></head>
+<body><div class="shell">
+<header><div><div class="brand">DuoBond</div><div class="sub">Just us, in our own little world</div></div><div id="topStatus" class="status">Not connected</div></header>
+<section id="auth" class="card"><h1>Welcome back</h1><p class="hint">A private space for two. Sign in to continue.</p>
+<form id="loginForm"><label for="email">Email</label><input id="email" type="email" autocomplete="username" required placeholder="you@example.com">
+<label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required placeholder="Your password">
+<button class="wide" id="loginBtn" type="submit">Sign in</button></form><div id="authError" class="error" role="alert"></div></section>
+<section id="chat" class="chat"><div id="security"><strong style="color:var(--gold)">Device security check</strong><div id="securityText">Preparing your device key…</div>
+<div id="peerFingerprint" class="fingerprint"></div><div class="verify"><input id="verifyCheck" type="checkbox"><label for="verifyCheck">I compared this fingerprint with my partner through a separate trusted channel.</label></div>
+<button id="trustBtn" class="wide" type="button">Confirm fingerprint</button><div id="securityError" class="error"></div></div>
+<div id="messages"><div class="empty">Your conversation starts here.</div></div>
+<form id="sendForm" class="composer"><input id="messageInput" maxlength="5000" autocomplete="off" placeholder="Write something from the heart…" aria-label="Message"><button id="sendBtn" type="submit" disabled>Send</button></form></section>
+<footer>Device-only encryption · No cloud key backup</footer></div>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-
-const SUPABASE_URL = 'https://lunkifqokwvecmtohzxs.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_HHoiVrTv5JmQDGgNJmBmtA_ITexssLE';
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-const $ = id => document.getElementById(id);
-let currentUser = null;
-let channel = null;
-let seen = new Set();
-
-function showAuth(message='') {
-  $('auth').classList.remove('hidden'); $('chat').style.display='none';
-  $('authError').textContent=message; $('topStatus').textContent='Not connected';
+import { getOrCreateDeviceKey, deriveChatKey, encryptText, decryptText } from './crypto.js';
+const supabase=createClient('https://lunkifqokwvecmtohzxs.supabase.co','sb_publishable_HHoiVrTv5JmQDGgNJmBmtA_ITexssLE');
+const $=id=>document.getElementById(id);let currentUser=null,channel=null,receiptChannel=null,device=null,chatKey=null,peer=null,ready=false,seen=new Set(),receiptMap=new Map();
+const trustedKey='duobond-peer-fingerprint-v1';
+function status(t){$('topStatus').textContent=t}
+function showAuth(msg=''){$('auth').classList.remove('hidden');$('chat').style.display='none';$('authError').textContent=msg;status('Not connected')}
+function showChat(user){currentUser=user;$('auth').classList.add('hidden');$('chat').style.display='flex';setupEncryption().catch(e=>securityFail(e.message));}
+function securityFail(msg){ready=false;chatKey=null;$('sendBtn').disabled=true;$('security').style.display='block';$('securityError').textContent=msg;status('Security setup needed')}
+async function setupEncryption(){
+ ready=false;$('sendBtn').disabled=true;$('security').style.display='block';$('securityText').textContent='Creating or loading this device’s private key…';
+ device=await getOrCreateDeviceKey();
+ const {error:upErr}=await supabase.from('duo_device_keys').upsert({user_id:currentUser.id,public_key:JSON.stringify(device.publicJwk),fingerprint:device.fingerprint,updated_at:new Date().toISOString()},{onConflict:'user_id'});
+ if(upErr)throw new Error('Could not register this device key: '+upErr.message);
+ const {data:members,error:mErr}=await supabase.from('duo_members').select('user_id');
+ if(mErr)throw new Error('Could not verify DuoBond members: '+mErr.message);
+ const other=members?.find(x=>x.user_id!==currentUser.id);
+ if(!other)throw new Error('The other DuoBond account is not registered yet.');
+ const {data:keys,error:kErr}=await supabase.from('duo_device_keys').select('user_id,public_key,fingerprint').eq('user_id',other.user_id).maybeSingle();
+ if(kErr)throw new Error('Could not load partner device key: '+kErr.message);
+ if(!keys){$('securityText').textContent='Your key is ready. Your partner must sign in on their device once to create their key.';status('Waiting for partner key');return;}
+ peer={...keys,publicJwk:JSON.parse(keys.public_key)};
+ chatKey=await deriveChatKey(device.pair.privateKey,peer.publicJwk);
+ $('peerFingerprint').textContent=peer.fingerprint;
+ $('securityText').textContent='Compare the fingerprint below with your partner in person or by a separate trusted call. Do not confirm if it differs.';
+ const trusted=localStorage.getItem(trustedKey);
+ if(trusted===peer.fingerprint){await unlockChat();return;}
+ $('verifyCheck').checked=false;$('trustBtn').disabled=false;$('securityError').textContent='';
+ status('Verify partner key');
 }
-function showChat(user) {
-  currentUser=user; $('auth').classList.add('hidden'); $('chat').style.display='flex';
-  $('topStatus').textContent='Connected'; loadMessages(); subscribeMessages();
+async function unlockChat(){
+ ready=true;$('security').style.display='none';$('sendBtn').disabled=false;status('Encrypted connection ready');
+ await loadMessages();subscribeMessages();subscribeReceipts();
 }
-function addMessage(m) {
-  if(seen.has(m.id)) return; seen.add(m.id);
-  const empty=$('messages').querySelector('.empty'); if(empty) empty.remove();
-  const node=document.createElement('div'); node.className='msg'+(m.sender_id===currentUser.id?' mine':'');
-  const body=document.createElement('div'); body.textContent=m.body;
-  const time=document.createElement('div'); time.className='time';
-  time.textContent=new Date(m.created_at).toLocaleString([], {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
-  node.append(body,time); $('messages').append(node); $('messages').scrollTop=$('messages').scrollHeight;
-}
-async function loadMessages() {
-  const {data,error}=await supabase.from('messages').select('id,sender_id,body,created_at').order('created_at',{ascending:true}).limit(200);
-  if(error){$('topStatus').textContent='Chat load error'; console.error(error);return;}
-  $('messages').innerHTML=''; seen.clear();
-  if(!data?.length) $('messages').innerHTML='<div class="empty">Your private conversation starts here.</div>';
-  (data||[]).forEach(addMessage);
-}
-function subscribeMessages() {
-  if(channel) supabase.removeChannel(channel);
-  channel=supabase.channel('duobond-messages').on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},payload=>addMessage(payload.new)).subscribe();
-}
-$('loginForm').addEventListener('submit',async e=>{
-  e.preventDefault(); $('loginBtn').disabled=true; $('authError').textContent='Signing in...';
-  const {data,error}=await supabase.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});
-  $('loginBtn').disabled=false;
-  if(error){$('authError').textContent=error.message;return;}
-  showChat(data.user);
+$('trustBtn').addEventListener('click',async()=>{
+ if(!$('verifyCheck').checked){$('securityError').textContent='Please compare the fingerprint with your partner first.';return;}
+ if(!peer)return;
+ localStorage.setItem(trustedKey,peer.fingerprint);
+ await unlockChat();
 });
+function isEnvelope(body){try{const x=JSON.parse(body);return x?.v===1&&x?.alg==='A256GCM'}catch{return false}}
+async function displayMessage(m){
+ if(seen.has(m.id))return;seen.add(m.id);
+ const empty=$('messages').querySelector('.empty');if(empty)empty.remove();
+ const node=document.createElement('div');node.className='msg'+(m.sender_id===currentUser.id?' mine':'');
+ const body=document.createElement('div');
+ if(isEnvelope(m.body)){try{body.textContent=await decryptText(chatKey,m.body)}catch{body.textContent='Unable to decrypt this message on this device.'}}
+ else body.textContent='[Older message · not encrypted] '+m.body;
+ const time=document.createElement('div');time.className='time';time.textContent=new Date(m.created_at).toLocaleString([],{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+ node.append(body,time);
+ if(m.sender_id===currentUser.id){const meta=document.createElement('div');meta.className='meta';meta.textContent=receiptMap.get(m.id)||'Sent';node.append(meta);node.dataset.messageId=m.id;}
+ $('messages').append(node);$('messages').scrollTop=$('messages').scrollHeight;
+ if(m.sender_id!==currentUser.id)await markReceived(m.id,true);
+}
+async function loadMessages(){
+ const {data,error}=await supabase.from('messages').select('id,sender_id,body,created_at').order('created_at',{ascending:true}).limit(200);
+ if(error)throw error;
+ const ids=(data||[]).filter(m=>m.sender_id===currentUser.id).map(m=>m.id);
+ if(ids.length){const {data:rs}=await supabase.from('message_receipts').select('message_id,delivered_at,seen_at').in('message_id',ids);(rs||[]).forEach(r=>receiptMap.set(r.message_id,r.seen_at?'Seen':r.delivered_at?'Delivered':'Sent'));}
+ $('messages').innerHTML='';seen.clear();if(!data?.length)$('messages').innerHTML='<div class="empty">Your conversation starts here.</div>';
+ for(const m of data||[])await displayMessage(m);
+}
+async function markReceived(id,visible){
+ const now=new Date().toISOString();
+ const {error}=await supabase.from('message_receipts').upsert({message_id:id,recipient_id:currentUser.id,delivered_at:now,seen_at:visible?now:null},{onConflict:'message_id,recipient_id'});
+ if(error)console.warn('Receipt update:',error.message);
+}
+function subscribeMessages(){
+ if(channel)supabase.removeChannel(channel);
+ channel=supabase.channel('duobond-encrypted-messages').on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},async p=>{if(ready)await displayMessage(p.new)}).subscribe();
+}
+function subscribeReceipts(){
+ if(receiptChannel)supabase.removeChannel(receiptChannel);
+ receiptChannel=supabase.channel('duobond-receipts').on('postgres_changes',{event:'*',schema:'public',table:'message_receipts'},p=>{
+  const r=p.new;if(r?.recipient_id!==currentUser.id&&r?.message_id){const s=r.seen_at?'Seen':r.delivered_at?'Delivered':'Sent';receiptMap.set(r.message_id,s);const n=$('messages').querySelector('[data-message-id="'+r.message_id+'"] .meta');if(n)n.textContent=s;}
+ }).subscribe();
+}
+$('loginForm').addEventListener('submit',async e=>{e.preventDefault();$('loginBtn').disabled=true;$('authError').textContent='Signing in…';const {data,error}=await supabase.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});$('loginBtn').disabled=false;if(error){$('authError').textContent=error.message;return;}showChat(data.user);});
 $('sendForm').addEventListener('submit',async e=>{
-  e.preventDefault(); const body=$('messageInput').value.trim(); if(!body||!currentUser)return;
-  const btn=$('sendForm').querySelector('button');btn.disabled=true;
-  const {error}=await supabase.from('messages').insert({sender_id:currentUser.id,body});
-  btn.disabled=false;
-  if(error){$('topStatus').textContent='Message not sent';console.error(error);return;}
-  $('messageInput').value='';$('topStatus').textContent='Connected';
+ e.preventDefault();const plain=$('messageInput').value.trim();if(!plain||!currentUser||!ready||!chatKey)return;
+ const btn=$('sendBtn');btn.disabled=true;
+ try{const body=await encryptText(chatKey,plain);const {error}=await supabase.from('messages').insert({sender_id:currentUser.id,body});if(error)throw error;$('messageInput').value='';status('Encrypted · Sent');}
+ catch(err){status('Message not sent');$('securityError').textContent=err.message;}
+ finally{btn.disabled=false;}
 });
-supabase.auth.onAuthStateChange((_event,session)=>{
-  if(session?.user) showChat(session.user);
-  else {currentUser=null;if(channel){supabase.removeChannel(channel);channel=null;}showAuth();}
-});
-const {data:{session}}=await supabase.auth.getSession();
-if(session?.user) showChat(session.user); else showAuth();
-if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(console.error));
-</script>
-</body>
-</html>
+supabase.auth.onAuthStateChange((_event,session)=>{if(session?.user&&session.user.id!==currentUser?.id)showChat(session.user);else if(!session){currentUser=null;ready=false;chatKey=null;if(channel)supabase.removeChannel(channel);if(receiptChannel)supabase.removeChannel(receiptChannel);showAuth();}});
+const {data:{session}}=await supabase.auth.getSession();if(session?.user)showChat(session.user);else showAuth();
+if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(console.error));
+</script></body></html>
