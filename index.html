@@ -41,7 +41,7 @@ footer{font-size:11px;color:var(--muted);text-align:center;padding:10px}
 <footer>Device-only encryption · No cloud key backup</footer></div>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { getOrCreateDeviceKey, deriveChatKey, encryptText, decryptText } from './crypto.js';
+import { getOrCreateDeviceKey, deriveChatKey, encryptText, decryptText, conversationFingerprint } from './crypto.js';
 const supabase=createClient('https://lunkifqokwvecmtohzxs.supabase.co','sb_publishable_HHoiVrTv5JmQDGgNJmBmtA_ITexssLE');
 const $=id=>document.getElementById(id);let currentUser=null,channel=null,receiptChannel=null,device=null,chatKey=null,peer=null,ready=false,seen=new Set(),receiptMap=new Map();
 const trustedKey='duobond-peer-fingerprint-v1';
@@ -60,10 +60,11 @@ async function setupEncryption(){
  if(!keys){$('securityText').textContent='Your key is ready. Your partner must sign in on their device once to create their key.';status('Waiting for partner key');return;}
  peer={...keys,publicJwk:JSON.parse(keys.public_key)};
  chatKey=await deriveChatKey(device.pair.privateKey,peer.publicJwk);
- $('peerFingerprint').textContent=peer.fingerprint;
- $('securityText').textContent='Compare the fingerprint below with your partner in person or by a separate trusted call. Do not confirm if it differs.';
+ const safetyNumber=await conversationFingerprint(device.fingerprint,peer.fingerprint);
+ $('peerFingerprint').textContent=safetyNumber;
+ $('securityText').textContent='Both devices should show the exact same safety number. Compare it in person or by a separate trusted call before confirming.';
  const trusted=localStorage.getItem(trustedKey);
- if(trusted===peer.fingerprint){await unlockChat();return;}
+ if(trusted===safetyNumber){await unlockChat();return;}
  $('verifyCheck').checked=false;$('trustBtn').disabled=false;$('securityError').textContent='';
  status('Verify partner key');
 }
@@ -74,7 +75,7 @@ async function unlockChat(){
 $('trustBtn').addEventListener('click',async()=>{
  if(!$('verifyCheck').checked){$('securityError').textContent='Please compare the fingerprint with your partner first.';return;}
  if(!peer)return;
- localStorage.setItem(trustedKey,peer.fingerprint);
+ localStorage.setItem(trustedKey,$('peerFingerprint').textContent);
  await unlockChat();
 });
 function isEnvelope(body){try{const x=JSON.parse(body);return x?.v===1&&x?.alg==='A256GCM'}catch{return false}}
