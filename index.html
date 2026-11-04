@@ -1,156 +1,27 @@
 <!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#100d12"><meta name="description" content="A private space for two.">
-<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./icon.svg" type="image/svg+xml">
-<title>DuoBond</title>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#075e54"><meta name="apple-mobile-web-app-capable" content="yes"><title>DuoBond</title>
 <style>
-:root{color-scheme:dark;--bg:#100d12;--panel:#1b151c;--panel2:#261d27;--line:#493443;--text:#f8f1f4;--muted:#b9a7b2;--gold:#d8bd91;--rose:#b8798e;--mine:#422d3a;--theirs:#29232d}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#291a27 0,#100d12 58%);color:var(--text);font:16px system-ui,-apple-system,sans-serif;min-height:100dvh}
-button,input{font:inherit}button{cursor:pointer;border:0;border-radius:14px;padding:13px 17px;background:linear-gradient(135deg,var(--gold),#b98d72);color:#1a1216;font-weight:700}
-button:disabled{opacity:.5;cursor:not-allowed}.shell{max-width:760px;margin:auto;min-height:100dvh;display:flex;flex-direction:column;padding:env(safe-area-inset-top) 14px env(safe-area-inset-bottom)}
-header{display:flex;align-items:center;justify-content:space-between;padding:22px 4px 17px;border-bottom:1px solid var(--line)}
-.brand{font-family:Georgia,serif;font-size:27px;letter-spacing:1.1px;color:var(--gold)}.sub{font-size:12px;color:var(--muted);margin-top:3px}.status{font-size:12px;color:var(--gold);text-align:right}
-.card{background:rgba(27,21,28,.94);border:1px solid var(--line);border-radius:22px;padding:22px;width:100%;max-width:460px;margin:auto;box-shadow:0 18px 55px #0005}
-h1{font-family:Georgia,serif;font-size:26px;font-weight:500;margin:0 0 8px}.hint{color:var(--muted);font-size:14px;line-height:1.55;margin:0 0 18px}
-label{display:block;color:var(--muted);font-size:13px;margin:14px 0 7px}input{width:100%;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:12px;padding:14px;outline:none}input:focus{border-color:var(--gold)}
-.wide{width:100%;margin-top:18px}.error{color:#ffaaa9;font-size:13px;min-height:18px;margin-top:12px}.home{display:none;flex:1;padding-top:22px}.contactRow{display:flex;align-items:center;gap:14px;padding:17px;background:rgba(27,21,28,.94);border:1px solid var(--line);border-radius:18px;cursor:pointer}.avatar{width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#d8bd91,#9d657d);color:#21151b;font-size:22px;font-weight:800}.contactName{font-weight:700}.contactPreview{font-size:13px;color:var(--muted);margin-top:4px}.chat{display:none;flex:1;min-height:0;flex-direction:column}
-#security{display:none;background:#211820;border:1px solid var(--line);border-radius:17px;padding:15px;margin:14px 0;color:var(--muted);font-size:13px;line-height:1.55}
-.fingerprint{font-family:ui-monospace,monospace;color:var(--gold);font-size:12px;overflow-wrap:anywhere;margin:8px 0}
-.verify{display:flex;gap:9px;align-items:flex-start;margin-top:12px}.verify input{width:auto;margin-top:3px}.verify label{margin:0;color:var(--text)}
-#messages{flex:1;overflow:auto;padding:18px 2px 14px;display:flex;flex-direction:column;gap:10px;min-height:220px}
-.msg{max-width:84%;padding:12px 14px;border-radius:17px;background:var(--theirs);align-self:flex-start;overflow-wrap:anywhere;white-space:pre-wrap;border:1px solid #493443}
-.msg.mine{align-self:flex-end;background:var(--mine)}.msgActions{display:flex;justify-content:flex-end;gap:8px;margin-top:7px}.loveBtn{padding:4px 9px;background:#34232f;color:#f3c4d2;border:1px solid #624052;font-size:13px}.loveCount{font-size:11px;color:#f3c4d2;align-self:center}.time{font-size:10px;color:#c7b5c0;margin-top:6px;text-align:right}
-.meta{font-size:10px;color:var(--gold);text-align:right;margin-top:3px}.composer{display:flex!important;flex:0 0 auto;gap:8px;padding:12px 0 calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:var(--bg);position:sticky;bottom:0;z-index:5}.composer input{display:block;min-width:0;flex:1;width:1%}.photoBtn{padding:10px 13px!important;min-width:46px!important;background:#34232f!important;color:var(--gold)!important;border:1px solid var(--line)!important}.msgPhoto{display:block;max-width:min(100%,300px);max-height:360px;border-radius:12px;object-fit:cover;cursor:pointer}.photoPreview{max-width:100%;border-radius:12px}.composer button{display:block;flex:0 0 auto;padding:12px 20px;min-width:76px}
-.empty{color:var(--muted);text-align:center;margin:auto;font-size:14px;padding:30px 10px}.hidden{display:none!important}
-footer{font-size:11px;color:var(--muted);text-align:center;padding:10px}
-</style></head>
-<body><div class="shell">
-<header><div><div class="brand">DuoBond</div><div class="sub" id="partnerLabel">Just us, in our own little world</div></div><div style="text-align:right"><div id="topStatus" class="status">Not connected</div><div style="display:flex;gap:6px;justify-content:flex-end;margin-top:7px"><button id="nicknameBtn" type="button" style="padding:7px 10px;font-size:11px">Edit names</button><button id="logoutBtn" type="button" style="padding:7px 10px;font-size:11px">Log out</button></div></div></header>
-<section id="auth" class="card"><h1>Welcome back</h1><p class="hint">A private space for two. Sign in to continue.</p>
-<form id="loginForm"><label for="email">Email</label><input id="email" type="email" autocomplete="username" required placeholder="you@example.com">
-<label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required placeholder="Your password">
-<button class="wide" id="loginBtn" type="submit">Sign in</button></form><div id="authError" class="error" role="alert"></div></section>
-<section id="home" class="home"><div class="sub" style="margin:0 4px 12px">CHATS</div><button id="wifeChat" type="button" class="contactRow" style="width:100%;text-align:left;color:var(--text);background:rgba(27,21,28,.94);border:1px solid var(--line);"><div class="avatar" id="wifeAvatar">W</div><div style="min-width:0;flex:1"><div class="contactName" id="wifeName">Wife</div><div class="contactPreview" id="wifePreview">Tap to open your private conversation</div></div><div class="status">›</div></button></section>
-<section id="chat" class="chat"><div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)"><button id="backHome" type="button" style="padding:8px 13px">‹</button><div><div id="chatPartnerName" style="font-weight:700">Wife</div><div class="sub">Private conversation</div></div><button id="blockBtn" type="button" style="margin-left:auto;padding:8px 10px;font-size:11px">Block</button></div><div id="messages"><div class="empty">Your conversation starts here.</div></div>
-<form id="sendForm" class="composer"><input id="photoInput" type="file" accept="image/*" hidden><button id="photoBtn" class="photoBtn" type="button" aria-label="Send photo" title="Send photo">＋</button><input id="messageInput" maxlength="5000" autocomplete="off" placeholder="Write something from the heart…" aria-label="Message"><button id="sendBtn" type="submit" disabled>Send</button></form></section>
-<footer>Encryption temporarily off · Messages are stored as plain text</footer></div>
-<script type="module">
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { getOrCreateDeviceKey, deriveChatKey, encryptText, decryptText } from './crypto.js';
-
-const supabase=createClient('https://lunkifqokwvecmtohzxs.supabase.co','sb_publishable_HHoiVrTv5JmQDGgNJmBmtA_ITexssLE',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storage:window.localStorage,storageKey:'duobond-auth-session'}});
-const $=id=>document.getElementById(id);let currentUser=null,channel=null,receiptChannel=null,profileChannel=null,keyChannel=null,deviceKeys=null,chatKey=null,ready=true,seen=new Set(),receiptMap=new Map(),myNickname='',peerNickname='',myRole=localStorage.getItem('duobond-local-role')||'';
-function applyLocalRole(){myRole=localStorage.getItem('duobond-local-role')||'';if(!['Husband','Wife'].includes(myRole)){let answer=prompt('Choose your role on THIS phone: type Husband or Wife. Your partner will see the opposite role.','');answer=(answer||'').trim().toLowerCase();if(answer==='husband')myRole='Husband';else if(answer==='wife')myRole='Wife';else{myRole='';alert('Please set your role using “Set my role” before chatting.');}}
-if(myRole)localStorage.setItem('duobond-local-role',myRole);peerNickname=myRole==='Husband'?'Wife':myRole==='Wife'?'Husband':'Partner';$('wifeName').textContent=peerNickname;$('chatPartnerName').textContent=peerNickname;$('wifeAvatar').textContent=peerNickname.charAt(0);$('partnerLabel').textContent='Your private conversation';}
-
-function status(t){$('topStatus').textContent=t}
-function subscribeProfiles(){/* Partner labels are device-local so each phone can show the opposite role. */}
-function showAuth(msg=''){$('auth').classList.remove('hidden');$('home').style.display='none';$('chat').style.display='none';$('authError').textContent=msg;status('Not connected')}
-function showChat(user){currentUser=user;applyLocalRole();ready=true;$('sendBtn').disabled=false;$('auth').classList.add('hidden');$('home').style.display='block';$('chat').style.display='none';subscribeProfiles();setupEncryption();}
-async function loadPartnerProfile(){applyLocalRole();}
-async function openConversation(){ $('home').style.display='none';$('chat').style.display='flex';$('chat').style.visibility='visible';$('partnerLabel').textContent=peerNickname||'Your private conversation';$('chatPartnerName').textContent=peerNickname||'Wife';$('messages').innerHTML='<div class="empty">Loading your messages…</div>';status('Inbox opened');$('sendForm').style.display='flex';$('sendBtn').disabled=false; if(!currentUser){$('messages').innerHTML='<div class="empty">Please sign in again.</div>';return;} try{await loadMessages();const {data:incoming}=await supabase.from('messages').select('id').neq('sender_id',currentUser.id);for(const m of incoming||[])await markReceived(m.id,true);}catch(e){$('messages').innerHTML='<div class="empty">Message loading failed: '+String(e.message||e).replace(/[<>&]/g,'')+'</div>';} subscribeMessages();subscribeReceipts();subscribeReactions(); try{await refreshBlockState();}catch(e){console.warn('Block status unavailable:',e);$('blockBtn').textContent='Block';$('sendBtn').disabled=false;}}
-async function refreshBlockState(){const {data:members}=await supabase.from('duo_members').select('user_id');const partner=members?.find(x=>x.user_id!==currentUser.id);if(!partner)return;const {data}=await supabase.from('duo_blocks').select('blocker_id,blocked_id').or('and(blocker_id.eq.'+currentUser.id+',blocked_id.eq.'+partner.user_id+'),and(blocker_id.eq.'+partner.user_id+',blocked_id.eq.'+currentUser.id+')');const blocked=!!data?.length;$('blockBtn').textContent=blocked?'Unblock':'Block';$('sendBtn').disabled=blocked;}
-async function setupEncryption(){chatKey=null;deviceKeys=null;$('sendBtn').disabled=true;status('Setting up encrypted chat…');try{const {data:members,error:memberError}=await supabase.from('duo_members').select('user_id');if(memberError)throw memberError;const partner=members?.find(x=>x.user_id!==currentUser.id);if(!partner)throw new Error('Partner account is not linked yet.');const local=await getOrCreateDeviceKey();deviceKeys=local;const record={user_id:currentUser.id,public_key:JSON.stringify(local.publicJwk),fingerprint:local.fingerprint,updated_at:new Date().toISOString()};const {error:saveError}=await supabase.from('duo_device_keys').upsert(record,{onConflict:'user_id'});if(saveError)throw saveError;const {data:peer,error:peerError}=await supabase.from('duo_device_keys').select('public_key').eq('user_id',partner.user_id).maybeSingle();if(peerError)throw peerError;if(keyChannel)supabase.removeChannel(keyChannel);keyChannel=supabase.channel('duobond-device-keys').on('postgres_changes',{event:'*',schema:'public',table:'duo_device_keys'},p=>{if(p.new?.user_id!==currentUser.id)setupEncryption().catch(console.error);}).subscribe();if(!peer){status('Waiting for partner to enable encryption');$('sendBtn').disabled=true;return;}const peerJwk=JSON.parse(peer.public_key);chatKey=await deriveChatKey(local.pair.privateKey,peerJwk);status('End-to-end text encryption active');$('sendBtn').disabled=false;if($('chat').style.display==='flex')loadMessages().catch(console.error);}catch(e){chatKey=null;$('sendBtn').disabled=true;status('Encryption setup needed');console.error('Encryption setup:',e);}}
-function isEnvelope(body){try{const x=JSON.parse(body);return x?.v===1&&x?.alg==='A256GCM'}catch{return false}}
-async function displayMessage(m){
- if(seen.has(m.id))return;seen.add(m.id);
- const empty=$('messages').querySelector('.empty');if(empty)empty.remove();
- const node=document.createElement('div');node.className='msg'+(m.sender_id===currentUser.id?' mine':'');
- const body=document.createElement('div');
- if(m.media_path && (m.media_mime||'').startsWith('audio/')){
-   const {data:audioUrl,error:audioError}=await supabase.storage.from('duobond-media').createSignedUrl(m.media_path,3600);
-   if(audioError)body.textContent='Voice message unavailable';else{const audio=document.createElement('audio');audio.controls=true;audio.preload='metadata';audio.src=audioUrl.signedUrl;audio.style.maxWidth='260px';body.append(audio);}
- } else if(m.media_path){
-   body.textContent='Loading photo…';
-   const {data:photoUrl,error:photoError}=await supabase.storage.from('duobond-media').createSignedUrl(m.media_path,3600);
-   body.textContent='';
-   if(photoError){body.textContent='Photo unavailable';}
-   else {const img=document.createElement('img');img.className='msgPhoto';img.alt=m.media_name||'Shared photo';img.src=photoUrl.signedUrl;img.loading='lazy';img.addEventListener('click',()=>window.open(photoUrl.signedUrl,'_blank','noopener'));body.append(img);}
- } else if(isEnvelope(m.body)){try{if(!chatKey)throw new Error('Encryption key unavailable');body.textContent=await decryptText(chatKey,m.body)}catch{body.textContent='Encrypted message · waiting for your encryption key.'}}
- else body.textContent=m.body;
- const time=document.createElement('div');time.className='time';time.textContent=new Date(m.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
- node.append(body,time);
- const actions=document.createElement('div');actions.className='msgActions';const love=document.createElement('button');love.type='button';love.className='loveBtn';love.textContent='♡ Love';const count=document.createElement('span');count.className='loveCount';count.dataset.reactionCount=String(m.id);actions.append(love,count);love.addEventListener('click',()=>toggleLove(m.id,love));node.append(actions);await loadLove(m.id,love,count);
- if(m.sender_id===currentUser.id){const meta=document.createElement('div');meta.className='meta';meta.textContent=receiptMap.get(m.id)||'Sent';node.append(meta);node.dataset.messageId=m.id;}
- $('messages').append(node);$('messages').scrollTop=$('messages').scrollHeight;
- if(m.sender_id!==currentUser.id)await markReceived(m.id,$('chat').style.display==='flex');
-}
-async function loadLove(id,button,count){
- const {data,error}=await supabase.from('message_reactions').select('user_id').eq('message_id',id);
- if(error)return;count.textContent=data?.length?String(data.length):'';
- button.textContent=data?.some(x=>x.user_id===currentUser.id)?'♥ Loved':'♡ Love';
-}
-async function toggleLove(id,button){
- const {data}=await supabase.from('message_reactions').select('user_id').eq('message_id',id).eq('user_id',currentUser.id).maybeSingle();
- let result;
- if(data)result=await supabase.from('message_reactions').delete().eq('message_id',id).eq('user_id',currentUser.id);
- else result=await supabase.from('message_reactions').insert({message_id:id,user_id:currentUser.id,reaction:'❤️'});
- if(result.error){alert('Reaction failed: '+result.error.message);return;}
- const count=button.parentElement.querySelector('.loveCount');await loadLove(id,button,count);
-}
-async function loadMessages(){
- const {data,error}=await supabase.from('messages').select('id,sender_id,body,created_at,media_path,media_mime,media_name').order('created_at',{ascending:true}).limit(200);
- if(error)throw error;
- const ids=(data||[]).filter(m=>m.sender_id===currentUser.id).map(m=>m.id);
- if(ids.length){const {data:rs}=await supabase.from('message_receipts').select('message_id,delivered_at,seen_at').in('message_id',ids);(rs||[]).forEach(r=>receiptMap.set(r.message_id,r.seen_at?'Seen':r.delivered_at?'Delivered':'Sent'));}
- $('messages').innerHTML='';seen.clear();if(!data?.length)$('messages').innerHTML='<div class="empty">Your conversation starts here.</div>';
- for(const m of data||[])await displayMessage(m);
-}
-async function markReceived(id,visible){
- const now=new Date().toISOString();
- const patch={message_id:id,recipient_id:currentUser.id,delivered_at:now};if(visible)patch.seen_at=now;
- const {error}=await supabase.from('message_receipts').upsert(patch,{onConflict:'message_id,recipient_id'});
- if(error)console.warn('Receipt update:',error.message);
-}
-function subscribeMessages(){
- if(channel)supabase.removeChannel(channel);
- channel=supabase.channel('duobond-encrypted-messages').on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},async p=>{if(ready)await displayMessage(p.new)}).subscribe();
-}
-function subscribeReactions(){supabase.channel('duobond-love-reactions').on('postgres_changes',{event:'*',schema:'public',table:'message_reactions'},async p=>{const id=p.new?.message_id||p.old?.message_id;const c=$('messages').querySelector('[data-reaction-count="'+id+'"]');const b=c?.parentElement?.querySelector('.loveBtn');if(id&&b&&c)await loadLove(id,b,c);}).subscribe();}
-function subscribeReceipts(){
- if(receiptChannel)supabase.removeChannel(receiptChannel);
- receiptChannel=supabase.channel('duobond-receipts').on('postgres_changes',{event:'*',schema:'public',table:'message_receipts'},p=>{
-  const r=p.new;if(r?.recipient_id!==currentUser.id&&r?.message_id){const s=r.seen_at?'Seen':r.delivered_at?'Delivered':'Sent';receiptMap.set(r.message_id,s);const n=$('messages').querySelector('[data-message-id="'+r.message_id+'"] .meta');if(n)n.textContent=s;}
- }).subscribe();
-}
-$('wifeChat').addEventListener('click',e=>{e.preventDefault();openConversation().catch(err=>{status('Inbox error');$('messages').innerHTML='<div class="empty">'+String(err.message||err)+'</div>';});});$('backHome').addEventListener('click',()=>{$('chat').style.display='none';$('home').style.display='block';});
-$('nicknameBtn').textContent='Set my role';$('nicknameBtn').addEventListener('click',()=>{if(!currentUser)return;localStorage.removeItem('duobond-local-role');applyLocalRole();$('partnerLabel').textContent='Your private conversation';});
-$('logoutBtn').addEventListener('click',async()=>{if(!confirm('Log out of DuoBond on this device?'))return;await supabase.auth.signOut();});
-$('blockBtn').addEventListener('click',async()=>{const {data:members}=await supabase.from('duo_members').select('user_id');const partner=members?.find(x=>x.user_id!==currentUser.id);if(!partner)return;const {data}=await supabase.from('duo_blocks').select('blocker_id').eq('blocker_id',currentUser.id).eq('blocked_id',partner.user_id).maybeSingle();if(data){const {error}=await supabase.from('duo_blocks').delete().eq('blocker_id',currentUser.id).eq('blocked_id',partner.user_id);if(error){alert('Unblock failed: '+error.message);return;}$('blockBtn').textContent='Block';$('sendBtn').disabled=false;alert('Partner unblocked.');await refreshBlockState();}else{const {error}=await supabase.from('duo_blocks').insert({blocker_id:currentUser.id,blocked_id:partner.user_id});if(error){alert('Block failed. Run the block migration in Supabase first: '+error.message);return;}$('blockBtn').textContent='Unblock';$('sendBtn').disabled=true;alert('Partner blocked. New messages are disabled.');}});
-$('loginForm').addEventListener('submit',async e=>{e.preventDefault();$('loginBtn').disabled=true;$('authError').textContent='Signing in…';const {data,error}=await supabase.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});$('loginBtn').disabled=false;if(error){$('authError').textContent=error.message;return;}showChat(data.user);});
-
-$('photoBtn').addEventListener('click',()=>{if(currentUser)$('photoInput').click();});
-$('photoInput').addEventListener('change',async()=>{
- const file=$('photoInput').files?.[0];$('photoInput').value='';if(!file||!currentUser)return;
- if(!file.type.startsWith('image/')){alert('Please choose an image file.');return;}
- if(file.size>10*1024*1024){alert('Photo must be 10 MB or smaller.');return;}
- const btn=$('photoBtn');btn.disabled=true;status('Uploading photo…');
- const node=document.createElement('div');node.className='msg mine';const label=document.createElement('div');label.textContent='Uploading photo…';node.append(label);$('messages').append(node);$('messages').scrollTop=$('messages').scrollHeight;
- try{
-   const ext=(file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'')||'jpg';
-   const path=currentUser.id+'/'+Date.now()+'-'+crypto.randomUUID()+'.'+ext;
-   const {error:uploadError}=await supabase.storage.from('duobond-media').upload(path,file,{contentType:file.type||'application/octet-stream',upsert:false});
-   if(uploadError)throw uploadError;
-   const {data,error}=await supabase.from('messages').insert({sender_id:currentUser.id,body:'[Photo]',media_path:path,media_mime:file.type,media_name:file.name}).select('id,sender_id,body,created_at,media_path,media_mime,media_name').single();
-   if(error){await supabase.storage.from('duobond-media').remove([path]);throw error;}
-   node.remove();await displayMessage(data);status('Photo sent');
- }catch(err){label.textContent='Photo not sent · '+String(err.message||err);status('Photo upload failed');console.error(err);}
- finally{btn.disabled=false;}
-});
-
-$('sendForm').addEventListener('submit',async e=>{
- e.preventDefault();const input=$('messageInput');const plain=input.value.trim();if(!plain||!currentUser)return;
- const btn=$('sendBtn');btn.disabled=true;input.value='';
- const node=document.createElement('div');node.className='msg mine';
- const body=document.createElement('div');body.textContent=plain;const time=document.createElement('div');time.className='time';time.textContent=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});const meta=document.createElement('div');meta.className='meta';meta.textContent='Sending…';node.append(body,time,meta);$('messages').append(node);$('messages').scrollTop=$('messages').scrollHeight;
- try{if(!chatKey)throw new Error('Encrypted chat is not ready. Ask your partner to open DuoBond and complete encryption setup.');const encrypted=await encryptText(chatKey,plain);const {data,error}=await supabase.from('messages').insert({sender_id:currentUser.id,body:encrypted}).select('id,sender_id,body,created_at,media_path,media_mime,media_name').single();if(error)throw error;node.remove();await displayMessage(data);status('Sent');}
- catch(err){meta.textContent='Not sent · Tap to retry';node.classList.add('failed');node.addEventListener('click',()=>{input.value=plain;input.focus();node.remove();});status('Message not sent');console.error('Send failed:',err);}
- finally{btn.disabled=false;input.focus();}
-});
-supabase.auth.onAuthStateChange((event,session)=>{if(session?.user&&session.user.id!==currentUser?.id)showChat(session.user);else if(event==='SIGNED_OUT'){currentUser=null;ready=false;chatKey=null;if(channel)supabase.removeChannel(channel);if(receiptChannel)supabase.removeChannel(receiptChannel);if(keyChannel)supabase.removeChannel(keyChannel);showAuth();}});
-const {data:{session}}=await supabase.auth.getSession();if(session?.user)showChat(session.user);else showAuth();
-if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(console.error));
-</script><script type="module" src="./enhancements.js"></script></body></html>
+:root{color-scheme:light;--green:#075e54;--pale:#d9fdd3;--bg:#efeae2;--ink:#111b21;--muted:#667781;--line:#e7e7e7}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px system-ui,-apple-system,sans-serif}.app{height:100dvh;max-width:760px;margin:auto;background:#fff;display:flex;flex-direction:column;box-shadow:0 0 30px #0001}.top{height:66px;background:var(--green);color:white;display:flex;align-items:center;padding:0 16px;gap:12px;flex-shrink:0}.avatar{width:42px;height:42px;border-radius:50%;background:#d5e8df;color:#075e54;display:grid;place-items:center;font-weight:800;font-size:19px}.topinfo{flex:1}.topname{font-weight:700}.presence{font-size:12px;opacity:.85}.top button{background:transparent;color:white;border:1px solid #ffffff55;border-radius:18px;padding:7px 11px}.login{margin:auto;width:min(90%,420px);padding:28px}.login h1{color:var(--green)}input{font:inherit}.login input{display:block;width:100%;padding:13px;border:1px solid #ccd3d6;border-radius:10px;margin:9px 0 16px}.primary{background:var(--green);color:white;border:0;border-radius:9px;padding:12px 18px;font-weight:700}.login .primary{width:100%}.error{color:#b3261e;min-height:20px;font-size:13px}.messages{flex:1;overflow:auto;padding:18px 13px;display:flex;flex-direction:column;gap:8px;background-color:#efeae2;background-image:radial-gradient(#d8d2c9 0.6px,transparent .6px);background-size:18px 18px}.bubble{max-width:82%;padding:9px 11px 6px;border-radius:10px;background:white;box-shadow:0 1px 1px #0001;align-self:flex-start;overflow-wrap:anywhere;white-space:pre-wrap}.bubble.mine{align-self:flex-end;background:var(--pale)}.time{font-size:10px;color:#667781;text-align:right;margin-top:4px}.empty{margin:auto;color:#667781;background:#ffffffdb;padding:12px 18px;border-radius:12px;text-align:center}.composer{display:flex;gap:8px;padding:10px;background:#f0f2f5;align-items:center}.composer input{min-width:0;flex:1;border:0;border-radius:24px;padding:13px 16px;background:white;outline:none}.composer button{border:0;border-radius:24px;background:var(--green);color:white;padding:11px 17px;font-weight:700}.hint{font-size:12px;color:var(--muted);padding:0 14px 8px;background:#f0f2f5}.hidden{display:none!important}
+</style></head><body><main class="app">
+<header class="top"><div class="avatar" id="avatar">D</div><div class="topinfo"><div class="topname" id="partnerName">DuoBond</div><div class="presence" id="status">Private chat</div></div><button id="logout" class="hidden">Log out</button></header>
+<section id="login" class="login"><h1>DuoBond</h1><p>A private chat for two.</p><form id="loginForm"><label>Email</label><input id="email" type="email" autocomplete="username" required placeholder="Email address"><label>Password</label><input id="password" type="password" autocomplete="current-password" required placeholder="Password"><button class="primary" id="loginBtn">Sign in</button></form><div class="error" id="error"></div></section>
+<section id="chat" class="hidden" style="display:flex;flex:1;min-height:0;flex-direction:column"><div id="messages" class="messages"><div class="empty">Your conversation starts here.</div></div><form id="sendForm" class="composer"><input id="message" maxlength="5000" autocomplete="off" placeholder="Message"><button id="send" type="submit">Send</button></form><div class="hint">Messages appear here in real time when both people are connected.</div></section>
+</main><script type="module">
+import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+const sb=createClient('https://lunkifqokwvecmtohzxs.supabase.co','sb_publishable_HHoiVrTv5JmQDGgNJmBmtA_ITexssLE',{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+const $=id=>document.getElementById(id);let user=null,peerId=null,channel=null,role=localStorage.getItem('duobond-local-role')||'';
+function setStatus(t){$('status').textContent=t}
+function safe(t){return String(t??'').replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c]))}
+function showLogin(msg=''){$('login').classList.remove('hidden');$('chat').classList.add('hidden');$('logout').classList.add('hidden');$('error').textContent=msg;user=null}
+function roleSetup(){if(!['Husband','Wife'].includes(role)){const a=prompt('On this phone type Husband or Wife','');role=(a||'').trim().toLowerCase()==='husband'?'Husband':(a||'').trim().toLowerCase()==='wife'?'Wife':'';if(role)localStorage.setItem('duobond-local-role',role)}const name=role==='Husband'?'Wife':'Husband';$('partnerName').textContent=name;$('avatar').textContent=name[0]}
+function draw(m){if(document.querySelector('[data-id="'+m.id+'"]'))return;const empty=$('messages').querySelector('.empty');if(empty)empty.remove();const n=document.createElement('div');n.className='bubble'+(m.sender_id===user.id?' mine':'');n.dataset.id=m.id;const body=document.createElement('div');body.textContent=m.body||'';const time=document.createElement('div');time.className='time';time.textContent=new Date(m.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});n.append(body,time);$('messages').append(n);$('messages').scrollTop=$('messages').scrollHeight}
+async function load(){const {data,error}=await sb.from('messages').select('id,sender_id,body,created_at').order('created_at',{ascending:true}).limit(300);if(error)throw error;$('messages').innerHTML='';if(!data?.length)$('messages').innerHTML='<div class="empty">Say hello to start your conversation.</div>';for(const m of data||[])draw(m)}
+function subscribe(){if(channel)sb.removeChannel(channel);channel=sb.channel('duobond-simple-chat').on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},p=>draw(p.new)).subscribe(s=>{if(s==='SUBSCRIBED')setStatus('Connected') ;else if(s==='CHANNEL_ERROR'||s==='TIMED_OUT')setStatus('Reconnecting…')})}
+async function enter(u){user=u;roleSetup();$('login').classList.add('hidden');$('chat').classList.remove('hidden');$('logout').classList.remove('hidden');setStatus('Connecting…');try{const {data:members,error}=await sb.from('duo_members').select('user_id');if(error)throw error;const ids=(members||[]).map(x=>x.user_id);if(!ids.includes(user.id)||ids.length<2)throw new Error('This login is not linked to the two-person DuoBond members. Check duo_members in Supabase.');peerId=ids.find(x=>x!==user.id);await load();subscribe()}catch(e){setStatus('Connection issue');$('messages').innerHTML='<div class="empty">'+safe(e.message)+'</div>';}}
+$('loginForm').addEventListener('submit',async e=>{e.preventDefault();$('loginBtn').disabled=true;$('error').textContent='Signing in…';const {data,error}=await sb.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});$('loginBtn').disabled=false;if(error){$('error').textContent=error.message;return}await enter(data.user)});
+$('sendForm').addEventListener('submit',async e=>{e.preventDefault();const body=$('message').value.trim();if(!body||!user)return;$('send').disabled=true;const {data,error}=await sb.from('messages').insert({sender_id:user.id,body}).select('id,sender_id,body,created_at').single();$('send').disabled=false;if(error){alert('Message not sent: '+error.message);return}$('message').value='';draw(data)});
+$('logout').addEventListener('click',async()=>{if(channel)await sb.removeChannel(channel);await sb.auth.signOut();showLogin()});
+sb.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_OUT')showLogin();else if(session?.user&&!user)enter(session.user)});
+const {data:{session}}=await sb.auth.getSession();if(session?.user)await enter(session.user);else showLogin();
+if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
+</script></body></html>
