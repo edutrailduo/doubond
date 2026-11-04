@@ -23,7 +23,7 @@ label{display:block;color:var(--muted);font-size:13px;margin:14px 0 7px}input{wi
 #messages{flex:1;overflow:auto;padding:18px 2px 14px;display:flex;flex-direction:column;gap:10px;min-height:220px}
 .msg{max-width:84%;padding:12px 14px;border-radius:17px;background:var(--theirs);align-self:flex-start;overflow-wrap:anywhere;white-space:pre-wrap;border:1px solid #493443}
 .msg.mine{align-self:flex-end;background:var(--mine)}.msgActions{display:flex;justify-content:flex-end;gap:8px;margin-top:7px}.loveBtn{padding:4px 9px;background:#34232f;color:#f3c4d2;border:1px solid #624052;font-size:13px}.loveCount{font-size:11px;color:#f3c4d2;align-self:center}.time{font-size:10px;color:#c7b5c0;margin-top:6px;text-align:right}
-.meta{font-size:10px;color:var(--gold);text-align:right;margin-top:3px}.composer{display:flex!important;flex:0 0 auto;gap:8px;padding:12px 0 calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:var(--bg);position:sticky;bottom:0;z-index:5}.composer input{display:block;min-width:0;flex:1;width:1%}.composer button{display:block;flex:0 0 auto;padding:12px 20px;min-width:76px}
+.meta{font-size:10px;color:var(--gold);text-align:right;margin-top:3px}.composer{display:flex!important;flex:0 0 auto;gap:8px;padding:12px 0 calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:var(--bg);position:sticky;bottom:0;z-index:5}.composer input{display:block;min-width:0;flex:1;width:1%}.photoBtn{padding:10px 13px!important;min-width:46px!important;background:#34232f!important;color:var(--gold)!important;border:1px solid var(--line)!important}.msgPhoto{display:block;max-width:min(100%,300px);max-height:360px;border-radius:12px;object-fit:cover;cursor:pointer}.photoPreview{max-width:100%;border-radius:12px}.composer button{display:block;flex:0 0 auto;padding:12px 20px;min-width:76px}
 .empty{color:var(--muted);text-align:center;margin:auto;font-size:14px;padding:30px 10px}.hidden{display:none!important}
 footer{font-size:11px;color:var(--muted);text-align:center;padding:10px}
 </style></head>
@@ -35,7 +35,7 @@ footer{font-size:11px;color:var(--muted);text-align:center;padding:10px}
 <button class="wide" id="loginBtn" type="submit">Sign in</button></form><div id="authError" class="error" role="alert"></div></section>
 <section id="home" class="home"><div class="sub" style="margin:0 4px 12px">CHATS</div><button id="wifeChat" type="button" class="contactRow" style="width:100%;text-align:left;color:var(--text);background:rgba(27,21,28,.94);border:1px solid var(--line);"><div class="avatar" id="wifeAvatar">W</div><div style="min-width:0;flex:1"><div class="contactName" id="wifeName">Wife</div><div class="contactPreview" id="wifePreview">Tap to open your private conversation</div></div><div class="status">›</div></button></section>
 <section id="chat" class="chat"><div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)"><button id="backHome" type="button" style="padding:8px 13px">‹</button><div><div id="chatPartnerName" style="font-weight:700">Wife</div><div class="sub">Private conversation</div></div><button id="blockBtn" type="button" style="margin-left:auto;padding:8px 10px;font-size:11px">Block</button></div><div id="messages"><div class="empty">Your conversation starts here.</div></div>
-<form id="sendForm" class="composer"><input id="messageInput" maxlength="5000" autocomplete="off" placeholder="Write something from the heart…" aria-label="Message"><button id="sendBtn" type="submit" disabled>Send</button></form></section>
+<form id="sendForm" class="composer"><input id="photoInput" type="file" accept="image/*" hidden><button id="photoBtn" class="photoBtn" type="button" aria-label="Send photo" title="Send photo">＋</button><input id="messageInput" maxlength="5000" autocomplete="off" placeholder="Write something from the heart…" aria-label="Message"><button id="sendBtn" type="submit" disabled>Send</button></form></section>
 <footer>Encryption temporarily off · Messages are stored as plain text</footer></div>
 <script type="module">
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
@@ -57,7 +57,13 @@ async function displayMessage(m){
  const empty=$('messages').querySelector('.empty');if(empty)empty.remove();
  const node=document.createElement('div');node.className='msg'+(m.sender_id===currentUser.id?' mine':'');
  const body=document.createElement('div');
- if(isEnvelope(m.body)){try{body.textContent=await decryptText(chatKey,m.body)}catch{body.textContent='Unable to decrypt this message on this device.'}}
+ if(m.media_path){
+   body.textContent='Loading photo…';
+   const {data:photoUrl,error:photoError}=await supabase.storage.from('duobond-media').createSignedUrl(m.media_path,3600);
+   body.textContent='';
+   if(photoError){body.textContent='Photo unavailable';}
+   else {const img=document.createElement('img');img.className='msgPhoto';img.alt=m.media_name||'Shared photo';img.src=photoUrl.signedUrl;img.loading='lazy';img.addEventListener('click',()=>window.open(photoUrl.signedUrl,'_blank','noopener'));body.append(img);}
+ } else if(isEnvelope(m.body)){try{body.textContent=await decryptText(chatKey,m.body)}catch{body.textContent='Unable to decrypt this message on this device.'}}
  else body.textContent=m.body;
  const time=document.createElement('div');time.className='time';time.textContent=new Date(m.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
  node.append(body,time);
@@ -79,7 +85,7 @@ async function toggleLove(id,button){
  const count=button.parentElement.querySelector('.loveCount');await loadLove(id,button,count);
 }
 async function loadMessages(){
- const {data,error}=await supabase.from('messages').select('id,sender_id,body,created_at').order('created_at',{ascending:true}).limit(200);
+ const {data,error}=await supabase.from('messages').select('id,sender_id,body,created_at,media_path,media_mime,media_name').order('created_at',{ascending:true}).limit(200);
  if(error)throw error;
  const ids=(data||[]).filter(m=>m.sender_id===currentUser.id).map(m=>m.id);
  if(ids.length){const {data:rs}=await supabase.from('message_receipts').select('message_id,delivered_at,seen_at').in('message_id',ids);(rs||[]).forEach(r=>receiptMap.set(r.message_id,r.seen_at?'Seen':r.delivered_at?'Delivered':'Sent'));}
@@ -112,12 +118,32 @@ $('nicknameBtn').addEventListener('click',async()=>{
 $('logoutBtn').addEventListener('click',async()=>{if(!confirm('Log out of DuoBond on this device?'))return;await supabase.auth.signOut();});
 $('blockBtn').addEventListener('click',async()=>{const {data:members}=await supabase.from('duo_members').select('user_id');const partner=members?.find(x=>x.user_id!==currentUser.id);if(!partner)return;const {data}=await supabase.from('duo_blocks').select('blocker_id').eq('blocker_id',currentUser.id).eq('blocked_id',partner.user_id).maybeSingle();if(data){const {error}=await supabase.from('duo_blocks').delete().eq('blocker_id',currentUser.id).eq('blocked_id',partner.user_id);if(error){alert('Unblock failed: '+error.message);return;}$('blockBtn').textContent='Block';$('sendBtn').disabled=false;alert('Partner unblocked.');await refreshBlockState();}else{const {error}=await supabase.from('duo_blocks').insert({blocker_id:currentUser.id,blocked_id:partner.user_id});if(error){alert('Block failed. Run the block migration in Supabase first: '+error.message);return;}$('blockBtn').textContent='Unblock';$('sendBtn').disabled=true;alert('Partner blocked. New messages are disabled.');}});
 $('loginForm').addEventListener('submit',async e=>{e.preventDefault();$('loginBtn').disabled=true;$('authError').textContent='Signing in…';const {data,error}=await supabase.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});$('loginBtn').disabled=false;if(error){$('authError').textContent=error.message;return;}showChat(data.user);});
+
+$('photoBtn').addEventListener('click',()=>{if(currentUser)$('photoInput').click();});
+$('photoInput').addEventListener('change',async()=>{
+ const file=$('photoInput').files?.[0];$('photoInput').value='';if(!file||!currentUser)return;
+ if(!file.type.startsWith('image/')){alert('Please choose an image file.');return;}
+ if(file.size>10*1024*1024){alert('Photo must be 10 MB or smaller.');return;}
+ const btn=$('photoBtn');btn.disabled=true;status('Uploading photo…');
+ const node=document.createElement('div');node.className='msg mine';const label=document.createElement('div');label.textContent='Uploading photo…';node.append(label);$('messages').append(node);$('messages').scrollTop=$('messages').scrollHeight;
+ try{
+   const ext=(file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'')||'jpg';
+   const path=currentUser.id+'/'+Date.now()+'-'+crypto.randomUUID()+'.'+ext;
+   const {error:uploadError}=await supabase.storage.from('duobond-media').upload(path,file,{contentType:file.type||'application/octet-stream',upsert:false});
+   if(uploadError)throw uploadError;
+   const {data,error}=await supabase.from('messages').insert({sender_id:currentUser.id,body:'',media_path:path,media_mime:file.type,media_name:file.name}).select('id,sender_id,body,created_at,media_path,media_mime,media_name').single();
+   if(error){await supabase.storage.from('duobond-media').remove([path]);throw error;}
+   node.remove();await displayMessage(data);status('Photo sent');
+ }catch(err){label.textContent='Photo not sent · '+String(err.message||err);status('Photo upload failed');console.error(err);}
+ finally{btn.disabled=false;}
+});
+
 $('sendForm').addEventListener('submit',async e=>{
  e.preventDefault();const input=$('messageInput');const plain=input.value.trim();if(!plain||!currentUser)return;
  const btn=$('sendBtn');btn.disabled=true;input.value='';
  const node=document.createElement('div');node.className='msg mine';
  const body=document.createElement('div');body.textContent=plain;const time=document.createElement('div');time.className='time';time.textContent=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});const meta=document.createElement('div');meta.className='meta';meta.textContent='Sending…';node.append(body,time,meta);$('messages').append(node);$('messages').scrollTop=$('messages').scrollHeight;
- try{const {data,error}=await supabase.from('messages').insert({sender_id:currentUser.id,body:plain}).select('id,sender_id,body,created_at').single();if(error)throw error;node.remove();await displayMessage(data);status('Sent');}
+ try{const {data,error}=await supabase.from('messages').insert({sender_id:currentUser.id,body:plain}).select('id,sender_id,body,created_at,media_path,media_mime,media_name').single();if(error)throw error;node.remove();await displayMessage(data);status('Sent');}
  catch(err){meta.textContent='Not sent · Tap to retry';node.classList.add('failed');node.addEventListener('click',()=>{input.value=plain;input.focus();node.remove();});status('Message not sent');console.error('Send failed:',err);}
  finally{btn.disabled=false;input.focus();}
 });
