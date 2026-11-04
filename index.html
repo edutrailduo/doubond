@@ -131,7 +131,7 @@ $('photoInput').addEventListener('change',async()=>{
    const path=currentUser.id+'/'+Date.now()+'-'+crypto.randomUUID()+'.'+ext;
    const {error:uploadError}=await supabase.storage.from('duobond-media').upload(path,file,{contentType:file.type||'application/octet-stream',upsert:false});
    if(uploadError)throw uploadError;
-   const {data,error}=await supabase.from('messages').insert({sender_id:currentUser.id,body:'',media_path:path,media_mime:file.type,media_name:file.name}).select('id,sender_id,body,created_at,media_path,media_mime,media_name').single();
+   const {data,error}=await supabase.from('messages').insert({sender_id:currentUser.id,body:'[Photo]',media_path:path,media_mime:file.type,media_name:file.name}).select('id,sender_id,body,created_at,media_path,media_mime,media_name').single();
    if(error){await supabase.storage.from('duobond-media').remove([path]);throw error;}
    node.remove();await displayMessage(data);status('Photo sent');
  }catch(err){label.textContent='Photo not sent · '+String(err.message||err);status('Photo upload failed');console.error(err);}
