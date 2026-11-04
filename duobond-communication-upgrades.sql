@@ -59,9 +59,9 @@ for all to authenticated
 using (user_id = auth.uid() and exists (select 1 from public.duo_members where user_id = auth.uid()))
 with check (user_id = auth.uid() and exists (select 1 from public.duo_members where user_id = auth.uid()));
 grant select, insert, update, delete on public.message_reactions to authenticated;
-do $ begin
+do $$ begin
   alter publication supabase_realtime add table public.message_reactions;
-exception when duplicate_object then null; when undefined_object then null; end $;
+exception when duplicate_object then null; when undefined_object then null; end $$;
 
 -- Ensure call signaling is available for one-to-one WebRTC audio/video calls.
 create table if not exists public.call_signals (
