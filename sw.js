@@ -1,5 +1,5 @@
-const CACHE='duobond-shell-v4';
-const FILES=['./','./index.html','./crypto.js','./manifest.webmanifest','./icon.svg'];
+const CACHE='duobond-shell-v5';
+const FILES=['./','./index.html','./enhancements.js','./crypto.js','./manifest.webmanifest','./icon.svg'];
 self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(FILES)).then(()=>self.skipWaiting())));
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));
 self.addEventListener('fetch',event=>{
