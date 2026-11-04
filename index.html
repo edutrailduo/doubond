@@ -59,7 +59,10 @@ async function displayMessage(m){
  const empty=$('messages').querySelector('.empty');if(empty)empty.remove();
  const node=document.createElement('div');node.className='msg'+(m.sender_id===currentUser.id?' mine':'');
  const body=document.createElement('div');
- if(m.media_path){
+ if(m.media_path && (m.media_mime||'').startsWith('audio/')){
+   const {data:audioUrl,error:audioError}=await supabase.storage.from('duobond-media').createSignedUrl(m.media_path,3600);
+   if(audioError)body.textContent='Voice message unavailable';else{const audio=document.createElement('audio');audio.controls=true;audio.preload='metadata';audio.src=audioUrl.signedUrl;audio.style.maxWidth='260px';body.append(audio);}
+ } else if(m.media_path){
    body.textContent='Loading photo…';
    const {data:photoUrl,error:photoError}=await supabase.storage.from('duobond-media').createSignedUrl(m.media_path,3600);
    body.textContent='';
@@ -149,4 +152,4 @@ $('sendForm').addEventListener('submit',async e=>{
 supabase.auth.onAuthStateChange((event,session)=>{if(session?.user&&session.user.id!==currentUser?.id)showChat(session.user);else if(event==='SIGNED_OUT'){currentUser=null;ready=false;chatKey=null;if(channel)supabase.removeChannel(channel);if(receiptChannel)supabase.removeChannel(receiptChannel);showAuth();}});
 const {data:{session}}=await supabase.auth.getSession();if(session?.user)showChat(session.user);else showAuth();
 if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(console.error));
-</script></body></html>
+</script><script type="module" src="./enhancements.js"></script></body></html>
